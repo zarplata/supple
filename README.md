@@ -1,3 +1,3 @@
-# zp/supple
+# supple
 
-Supple is a document mapper and indexer for Elasticsearch.
+Supple is a framework agnostic document mapper and indexer for Elasticsearch.
