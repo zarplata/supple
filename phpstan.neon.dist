@@ -1,0 +1,8 @@
+parameters:
+    level: 8
+    bootstrapFiles:
+        - %rootDir%/../../../tests/bootstrap.php
+    paths:
+        - %rootDir%/../../../src
+        - %rootDir%/../../../tests
+
