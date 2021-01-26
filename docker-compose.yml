@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  elasticsearch6:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.1
+    ports:
+      - "9206:9200"
+
+  elasticsearch7:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    ports:
+      - "9207:9200"
+    environment:
+      - discovery.type=single-node
