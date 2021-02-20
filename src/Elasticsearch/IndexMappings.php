@@ -72,6 +72,6 @@ final class IndexMappings implements JsonSerializable
      */
     public function __toString(): string
     {
-        return json_encode($this, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+        return json_encode($this, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 }
