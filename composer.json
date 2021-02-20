@@ -1,6 +1,6 @@
 {
     "name": "zp/supple",
-    "description": "Document mapper and indexer for Elasticsearch",
+    "description": "Document indexation and migration tool for Elasticsearch",
     "type": "library",
     "license": "MIT",
     "keywords": ["elasticsearch", "elastic", "document", "mapper", "indexer"],
