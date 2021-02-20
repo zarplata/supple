@@ -62,16 +62,23 @@ final class Index implements JsonSerializable
         return $this->settings->compareTo($other->settings);
     }
 
-    public function compareNonDynamicSettingsTo(Index $remoteIndex): bool
+    public function compareNonDynamicSettingsTo(Index $other): bool
     {
-        return $this->settings->compareNonDynamicTo($remoteIndex->settings);
+        return $this->settings->compareNonDynamicTo($other->settings);
     }
 
-    public function mergeMissingSettingsFrom(Index $index): self
+    public function mergeMissingSettingsFrom(Index $other): self
     {
         $clone = clone $this;
-        $clone->settings = $this->settings->mergeMissingSettingsFrom($index->settings);
+        $clone->settings = $this->settings->mergeMissingSettingsFrom($other->settings);
         return $clone;
+    }
+
+    public function copyTypeFrom(Index $other): self
+    {
+        $clone = clone $this;
+        $clone->type = $other->type;
+        return $this;
     }
 
     public function removeNotUpdateableSettings(): self

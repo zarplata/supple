@@ -58,6 +58,13 @@ final class IndexTemplate implements JsonSerializable
         return $clone;
     }
 
+    public function copyTypeFrom(IndexTemplate $other): self
+    {
+        $clone = clone $this;
+        $clone->type = $other->type;
+        return $this;
+    }
+
     /**
      * @param IndexTemplate $other
      * @return bool

@@ -96,7 +96,9 @@ final class MigrationRunner
         }
         if ($this->client->hasTemplate($localTemplate->getName())) {
             $remoteTemplate = $this->client->getTemplate($localTemplate->getName());
-            $localTemplate = $localTemplate->mergeMissingSettingsFrom($remoteTemplate);
+            $localTemplate = $localTemplate
+                ->copyTypeFrom($remoteTemplate)
+                ->mergeMissingSettingsFrom($remoteTemplate);
 
             if (!$localTemplate->compareTo($remoteTemplate)) {
                 $migration->addCommand(
@@ -140,6 +142,7 @@ final class MigrationRunner
             $remoteIndex = $this->client->getIndex($localIndex->getName())->removeNotUpdateableSettings();
             $localIndex = $localIndex
                 ->removeNotUpdateableSettings()
+                ->copyTypeFrom($remoteIndex)
                 ->mergeMissingSettingsFrom($remoteIndex);
 
             if (!$localIndex->compareMappingsTo($remoteIndex)) {
