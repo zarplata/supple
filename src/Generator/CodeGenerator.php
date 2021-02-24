@@ -188,7 +188,7 @@ class CodeGenerator
         yield (new FileGenerator())
             ->setFilename($className . '.php')
             ->setNamespace($namespace)
-            ->setUse('\\Zp\\Supple\\Annotation', 'Elastic')
+            ->setUse('Zp\\Supple\\Annotation', 'Elastic')
             ->setClass($classGenerator);
     }
 }
