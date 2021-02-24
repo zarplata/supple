@@ -47,7 +47,7 @@ final class MigrationRunner
      * @return Generator<Migration>
      * @throws SuppleException
      */
-    public function migrate(): Generator
+    public function execute(): Generator
     {
         foreach ($this->migrations as $plan) {
             $plan->execute($this->client);

@@ -123,9 +123,9 @@ class MetadataFactory
                         $property->name = $annotation->name;
                     }
 
-                    $property->mapping = [
-                        'type' => $annotation->type,
-                    ];
+                    if ($annotation->type) {
+                        $property->mapping['type'] = $annotation->type;
+                    }
 
                     if ($annotation instanceof Annotation\EmbeddedMapping) {
                         $targetMetadata = $this->create($annotation->targetClass);

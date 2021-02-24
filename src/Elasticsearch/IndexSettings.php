@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Zp\Supple\Elasticsearch;
 
+use IteratorAggregate;
 use JsonSerializable;
 
 use const SORT_NATURAL;
 
-class IndexSettings implements JsonSerializable
+/**
+ * @implements IteratorAggregate<string, ?string>
+ */
+class IndexSettings implements JsonSerializable, IteratorAggregate
 {
     private const PROTECTED_SETTINGS = [
         'index.number_of_shards',
@@ -81,6 +85,14 @@ class IndexSettings implements JsonSerializable
         $settings = $this->settings;
         ksort($settings, SORT_NATURAL);
         return (object)$settings;
+    }
+
+    /**
+     * @return \ArrayIterator<string, ?string>
+     */
+    public function getIterator(): \ArrayIterator
+    {
+        return new \ArrayIterator($this->settings);
     }
 
     /**

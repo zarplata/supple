@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zp\Supple\Console;
 
 use Symfony\Component\Console\Helper\Helper;

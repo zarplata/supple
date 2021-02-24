@@ -7,7 +7,6 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @Elastic\IndexTemplate(name="posts", patterns="posts-*")
- * @Elastic\IndexMapping(name="dynamic", value="false")
  * @Elastic\IndexSetting(name="index.refresh_interval", value="5s")
  */
 class Post
@@ -45,7 +44,7 @@ class Post
     public $createdAt;
 
     /**
-     * @Elastic\EmbeddedMapping(type="nested", targetClass="PostComment")
+     * @Elastic\EmbeddedMapping(type="", targetClass="PostComment")
      * @var array<PostComment>
      */
     public $comments;

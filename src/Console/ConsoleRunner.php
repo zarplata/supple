@@ -7,6 +7,7 @@ namespace Zp\Supple\Console;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
+use Zp\Supple\Console\Command\CodeGenerateCommand;
 use Zp\Supple\Console\Command\MigrationExecuteCommand;
 use Zp\Supple\Supple;
 use Zp\Supple\Version;
@@ -61,6 +62,7 @@ class ConsoleRunner
         $cli->addCommands(
             [
                 new MigrationExecuteCommand(),
+                new CodeGenerateCommand(),
             ]
         );
     }

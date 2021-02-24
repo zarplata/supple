@@ -17,7 +17,7 @@ use Zp\Supple\Supple;
 use Zp\Supple\SuppleBuilder;
 
 return static function (bool $logging): Supple {
-    $client = ClientBuilder::create()->setHosts(['http://127.0.0.1:9207']);
+    $client = ClientBuilder::create()->setHosts([getenv('ELASTICSEARCH_URL') ?: 'http://127.0.0.1:9200']);
 
     if ($logging) {
         $logger = new Logger('app');

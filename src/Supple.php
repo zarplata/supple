@@ -7,6 +7,7 @@ namespace Zp\Supple;
 use Zp\Supple\Client\ReadOnlyClient;
 use Zp\Supple\Configuration\Configuration;
 use Zp\Supple\Configuration\ConfigurationValidator;
+use Zp\Supple\Generator\CodeGenerator;
 use Zp\Supple\Indexation\IndexationResult;
 use Zp\Supple\Indexation\Indexer;
 use Zp\Supple\Metadata\MetadataConfigurationProfile;
@@ -77,6 +78,8 @@ class Supple
     }
 
     /**
+     * Index document.
+     *
      * @param object $document
      * @throws Indexation\IndexationException
      */
@@ -86,6 +89,8 @@ class Supple
     }
 
     /**
+     * Index document to specific configuration.
+     *
      * @param string $configurationName
      * @param object $document
      * @throws Indexation\IndexationException
@@ -97,6 +102,8 @@ class Supple
     }
 
     /**
+     * Delete document.
+     *
      * @param string $configurationName
      * @param string $id
      * @throws Indexation\IndexationException
@@ -107,12 +114,19 @@ class Supple
         $this->indexer->delete($configuration, $id);
     }
 
+    /**
+     * Flush transaction.
+     *
+     * @return IndexationResult
+     */
     public function flush(): IndexationResult
     {
         return $this->indexer->flush();
     }
 
     /**
+     * Run migrator.
+     *
      * @param bool $dryRun
      * @return MigrationRunner
      * @throws SuppleConfigurationException
@@ -125,6 +139,16 @@ class Supple
             $client,
             $this->configurations
         );
+    }
+
+    /**
+     * Run code generator.
+     *
+     * @return CodeGenerator
+     */
+    public function generateCode(): CodeGenerator
+    {
+        return new CodeGenerator($this->client);
     }
 
     /**

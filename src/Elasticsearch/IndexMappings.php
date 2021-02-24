@@ -20,6 +20,14 @@ final class IndexMappings implements JsonSerializable
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function getProperties(): array
+    {
+        return $this->mappings['_doc']['properties'] ?? $this->mappings['properties'];
+    }
+
+    /**
      * @param string $name
      * @param mixed $value
      */

@@ -40,6 +40,7 @@
         <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces.NoEmptyLineBeforeClosingBrace"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
+        <exclude name="SlevomatCodingStandard.Classes.SuperfluousErrorNaming"/>
     </rule>
 
     <rule ref="SlevomatCodingStandard.Commenting">

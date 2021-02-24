@@ -13,7 +13,6 @@ use Zp\Supple\Indexation\IdentifierResolverFactory;
 use Zp\Supple\Indexation\IdentifierResolverInterface;
 use Zp\Supple\Indexation\RouterFactory;
 use Zp\Supple\Indexation\RouterInterface;
-use Zp\Supple\SuppleConfigurationException;
 
 class Configuration implements ConfigurableInterface
 {
@@ -40,9 +39,6 @@ class Configuration implements ConfigurableInterface
 
     /** @var IdentifierResolverInterface */
     private $documentIdentifierResolver;
-
-    /** @var bool */
-    private $migrateExistentIndices = false;
 
     public function __construct(string $name)
     {
