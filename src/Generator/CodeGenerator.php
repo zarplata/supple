@@ -91,13 +91,13 @@ class CodeGenerator
     }
 
     /**
-     * @param string $tarName
+     * @param string $name
      * @param array<string, mixed> $properties
      * @return Tag\GenericTag
      */
-    private function composeAnnotation(string $tarName, array $properties): Tag\GenericTag
+    private function composeAnnotation(string $name, array $properties): Tag\GenericTag
     {
-        return new Tag\GenericTag(sprintf('%s(%s)', $tarName, $this->composeAnnotationProperties($properties)));
+        return new Tag\GenericTag(sprintf('%s(%s)', $name, $this->composeAnnotationProperties($properties)));
     }
 
     /**
@@ -129,7 +129,7 @@ class CodeGenerator
         }
 
         foreach ($mappingProperties as $mappingPropertyName => $mappingProperty) {
-            $classPropertyName = lcfirst(
+            $propertyName = lcfirst(
                 (string)preg_replace_callback(
                     '/_([a-z]+)/',
                     static function ($match) {
@@ -143,45 +143,36 @@ class CodeGenerator
                 $mappingProperty['type'] = '';
             }
 
-            $type = $mappingProperty['type'];
-
-            switch ($type) {
+            switch ($mappingProperty['type']) {
                 case 'object':
-                    $objectClassName = sprintf('%s%s', $className, ucfirst($classPropertyName));
-                    if ($namespace) {
-                        $mappingProperty['targetClass'] = sprintf('\\%s\\%s', trim($namespace, '\\'), $objectClassName);
-                    } else {
-                        $mappingProperty['targetClass'] = sprintf('\\%s', $objectClassName);
-                    }
-                    $varTag = new Tag\VarTag(null, $objectClassName);
+                    $objectClassName = sprintf('%s%s', $className, ucfirst($propertyName));
+                    $mappingProperty['targetClass'] = $this->composeTargetClass($namespace, $objectClassName);
+                    $typeAnnotation = new Tag\VarTag(null, $objectClassName);
+                    $mappingAnnotation = $this->composeAnnotation('Elastic\\EmbeddedMapping', $mappingProperty);
                     yield from $this->generateClass($namespace, $objectClassName, $mappingProperty['properties'], null);
                     break;
 
                 case '':
                 case 'nested':
-                    $objectClassName = sprintf('%s%s', $className, ucfirst($classPropertyName));
-                    if ($namespace) {
-                        $mappingProperty['targetClass'] = sprintf('\\%s\\%s', trim($namespace, '\\'), $objectClassName);
-                    } else {
-                        $mappingProperty['targetClass'] = sprintf('\\%s', $objectClassName);
-                    }
-                    $varTag = new Tag\VarTag(null, sprintf('array<%s>', $objectClassName));
+                    $objectClassName = sprintf('%s%s', $className, ucfirst($propertyName));
+                    $mappingProperty['targetClass'] = $this->composeTargetClass($namespace, $objectClassName);
+                    $typeAnnotation = new Tag\VarTag(null, sprintf('array<%s>', $objectClassName));
+                    $mappingAnnotation = $this->composeAnnotation('Elastic\\EmbeddedMapping', $mappingProperty);
                     yield from $this->generateClass($namespace, $objectClassName, $mappingProperty['properties'], null);
                     break;
 
                 default:
-                    if (!array_key_exists($type, self::PHP_TYPES_MAP)) {
-                        throw new UnexpectedValueException(sprintf('unexpected type: %s', $type));
+                    if (!array_key_exists($mappingProperty['type'], self::PHP_TYPES_MAP)) {
+                        throw new UnexpectedValueException(sprintf('unexpected type: %s', $mappingProperty['type']));
                     }
-                    $varTag = new Tag\VarTag(null, self::PHP_TYPES_MAP[$type]);
+                    $typeAnnotation = new Tag\VarTag(null, self::PHP_TYPES_MAP[$mappingProperty['type']]);
+                    $mappingAnnotation = $this->composeAnnotation('Elastic\\Mapping', $mappingProperty);
             }
 
-            $property = (new PropertyGenerator($classPropertyName));
+            $property = (new PropertyGenerator($propertyName));
             $property
                 ->omitDefaultValue()
-                ->setDocBlock(
-                    $this->createDocBlock([$this->composeAnnotation('Elastic\\Mapping', $mappingProperty), $varTag])
-                );
+                ->setDocBlock($this->createDocBlock([$mappingAnnotation, $typeAnnotation]));
             $classGenerator->addPropertyFromGenerator($property);
         }
 
@@ -190,5 +181,20 @@ class CodeGenerator
             ->setNamespace($namespace)
             ->setUse('Zp\\Supple\\Annotation', 'Elastic')
             ->setClass($classGenerator);
+    }
+
+    /**
+     * @param string $namespace
+     * @param string $objectClassName
+     * @return string
+     */
+    private function composeTargetClass(string $namespace, string $objectClassName): string
+    {
+        if ($namespace) {
+            $targetClass = sprintf('\\%s\\%s', trim($namespace, '\\'), $objectClassName);
+        } else {
+            $targetClass = sprintf('\\%s', $objectClassName);
+        }
+        return $targetClass;
     }
 }
