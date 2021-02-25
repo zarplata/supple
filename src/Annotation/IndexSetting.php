@@ -16,6 +16,6 @@ final class IndexSetting
      */
     public $name;
 
-    /** @var string */
+    /** @var mixed */
     public $value;
 }
