@@ -78,7 +78,7 @@ class CodeGenerator
             if ($name === 'properties') {
                 continue;
             }
-            $prefix = is_numeric($name) ? '' : sprintf('%s=', $name);
+            $prefix = is_numeric($name) ? '' : sprintf('%s=', $this->toCamelCase($name));
             if (is_array($value)) {
                 $options[] = sprintf('%s{%s}', $prefix, $this->composeAnnotationProperties($value));
             } elseif (is_string($value)) {
@@ -129,15 +129,7 @@ class CodeGenerator
         }
 
         foreach ($mappingProperties as $mappingPropertyName => $mappingProperty) {
-            $propertyName = lcfirst(
-                (string)preg_replace_callback(
-                    '/_([a-z]+)/',
-                    static function ($match) {
-                        return ucfirst($match[1]);
-                    },
-                    $mappingPropertyName
-                )
-            );
+            $propertyName = $this->toCamelCase($mappingPropertyName);
 
             if (!isset($mappingProperty['type'])) {
                 $mappingProperty['type'] = '';
@@ -196,5 +188,22 @@ class CodeGenerator
             $targetClass = sprintf('\\%s', $objectClassName);
         }
         return $targetClass;
+    }
+
+    /**
+     * @param string $mappingPropertyName
+     * @return string
+     */
+    private function toCamelCase(string $mappingPropertyName): string
+    {
+        return lcfirst(
+            (string)preg_replace_callback(
+                '/_([a-z]+)/',
+                static function ($match) {
+                    return ucfirst($match[1]);
+                },
+                $mappingPropertyName
+            )
+        );
     }
 }
