@@ -55,9 +55,6 @@ final class MigrationRunner
         }
     }
 
-    /**
-     * @throws SuppleException
-     */
     private function prepareAvailableMigrations(): void
     {
         foreach ($this->configurations as $name => $configuration) {
@@ -83,11 +80,6 @@ final class MigrationRunner
         }
     }
 
-    /**
-     * @param Migration $migration
-     * @param Configuration $configuration
-     * @throws SuppleConfigurationException
-     */
     private function prepareTemplateMigration(Migration $migration, Configuration $configuration): void
     {
         $localTemplate = $configuration->getTemplate();

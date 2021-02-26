@@ -111,8 +111,6 @@ class MetadataFactory
     {
         foreach ($classReflector->getProperties() as $reflector) {
             $property = new MetadataProperty($this->namingStrategy->translate($reflector->getName()));
-            $metadata->properties[$property->name] = $property;
-
             $annotations = $this->annotationsReader->getPropertyAnnotations($reflector);
 
             self::parseExactlyOneAnnotation(
@@ -236,6 +234,8 @@ class MetadataFactory
                     sprintf('property %s must have mapping or ignore annotation', $property->name)
                 );
             }
+
+            $metadata->properties[$property->name] = $property;
         }
     }
 

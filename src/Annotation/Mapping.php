@@ -67,7 +67,7 @@ class Mapping
     /** @var array<mixed> */
     public $meta;
 
-    /** @var array<mixed> */
+    /** @var mixed */
     public $fields;
 
     /** @var string */

@@ -13,6 +13,7 @@ use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\PropertyGenerator;
 use RuntimeException;
+use Sabre\DAV\Xml\Element\Prop;
 use UnexpectedValueException;
 use Zp\Supple\ClientInterface;
 use Zp\Supple\Model\GeoPoint;
@@ -68,48 +69,6 @@ class CodeGenerator
     }
 
     /**
-     * @param array<mixed> $mapping
-     * @return string
-     */
-    private function composeAnnotationProperties(array $mapping): string
-    {
-        $options = [];
-        foreach ($mapping as $name => $value) {
-            if ($name === 'properties') {
-                continue;
-            }
-            $prefix = is_numeric($name) ? '' : sprintf('%s=', $this->toCamelCase((string)$name));
-            if (is_array($value)) {
-                $options[] = sprintf('%s{%s}', $prefix, $this->composeAnnotationProperties($value));
-            } elseif (is_string($value)) {
-                $options[] = sprintf('%s"%s"', $prefix, $value);
-            } else {
-                $options[] = sprintf('%s%s', $prefix, var_export($value, true));
-            }
-        }
-        return sprintf('%s', implode(', ', $options));
-    }
-
-    /**
-     * @param string $name
-     * @param array<string, mixed> $properties
-     * @return Tag\GenericTag
-     */
-    private function composeAnnotation(string $name, array $properties): Tag\GenericTag
-    {
-        return new Tag\GenericTag(sprintf('%s(%s)', $name, $this->composeAnnotationProperties($properties)));
-    }
-
-    /**
-     * @param array<Tag\TagInterface> $tags
-     * @return DocBlockGenerator
-     */
-    private function createDocBlock(array $tags): DocBlockGenerator
-    {
-        return DocBlockGenerator::fromArray(['tags' => $tags])->setWordWrap(false);
-    }
-
-    /**
      * @param string $namespace
      * @param string $className
      * @param array<string, mixed> $mappingProperties
@@ -128,28 +87,39 @@ class CodeGenerator
             $classGenerator->setDocblock($classDocBlock);
         }
 
-        foreach ($mappingProperties as $mappingPropertyName => $mappingProperty) {
-            $propertyName = $this->toCamelCase($mappingPropertyName);
+        foreach ($mappingProperties as $mappingName => $mappingProperty) {
+            $normalizedPropertyName = $this->toCamelCase((string)$mappingName);
+
+            if (is_numeric($mappingName)) {
+                $property = new PropertyGenerator(sprintf('_%s', $normalizedPropertyName));
+                $mappingProperty['name'] = (string)$mappingName;
+            } else {
+                $property = new PropertyGenerator($normalizedPropertyName);
+                if ($mappingName !== $normalizedPropertyName) {
+                    $mappingProperty['name'] = (string)$mappingName;
+                }
+            }
 
             if (!isset($mappingProperty['type'])) {
                 $mappingProperty['type'] = '';
             }
 
+            $annotations = [];
             switch ($mappingProperty['type']) {
                 case 'object':
-                    $objectClassName = sprintf('%s%s', $className, ucfirst($propertyName));
+                    $objectClassName = sprintf('%s%s', $className, ucfirst($normalizedPropertyName));
                     $mappingProperty['targetClass'] = $this->composeTargetClass($namespace, $objectClassName);
-                    $typeAnnotation = new Tag\VarTag(null, $objectClassName);
-                    $mappingAnnotation = $this->composeAnnotation('Elastic\\EmbeddedMapping', $mappingProperty);
+                    $annotations[] = new Tag\VarTag(null, $objectClassName);
+                    $annotations[] = $this->composeAnnotation('Elastic\\EmbeddedMapping', $mappingProperty);
                     yield from $this->generateClass($namespace, $objectClassName, $mappingProperty['properties'], null);
                     break;
 
                 case '':
                 case 'nested':
-                    $objectClassName = sprintf('%s%s', $className, ucfirst($propertyName));
+                    $objectClassName = sprintf('%s%s', $className, ucfirst($normalizedPropertyName));
                     $mappingProperty['targetClass'] = $this->composeTargetClass($namespace, $objectClassName);
-                    $typeAnnotation = new Tag\VarTag(null, sprintf('array<%s>', $objectClassName));
-                    $mappingAnnotation = $this->composeAnnotation('Elastic\\EmbeddedMapping', $mappingProperty);
+                    $annotations[] = new Tag\VarTag(null, sprintf('array<%s>', $objectClassName));
+                    $annotations[] = $this->composeAnnotation('Elastic\\EmbeddedMapping', $mappingProperty);
                     yield from $this->generateClass($namespace, $objectClassName, $mappingProperty['properties'], null);
                     break;
 
@@ -157,14 +127,12 @@ class CodeGenerator
                     if (!array_key_exists($mappingProperty['type'], self::PHP_TYPES_MAP)) {
                         throw new UnexpectedValueException(sprintf('unexpected type: %s', $mappingProperty['type']));
                     }
-                    $typeAnnotation = new Tag\VarTag(null, self::PHP_TYPES_MAP[$mappingProperty['type']]);
-                    $mappingAnnotation = $this->composeAnnotation('Elastic\\Mapping', $mappingProperty);
+                    $annotations[] = new Tag\VarTag(null, self::PHP_TYPES_MAP[$mappingProperty['type']]);
+                    $annotations[] = $this->composeAnnotation('Elastic\\Mapping', $mappingProperty);
             }
 
-            $property = (new PropertyGenerator($propertyName));
-            $property
-                ->omitDefaultValue()
-                ->setDocBlock($this->createDocBlock([$mappingAnnotation, $typeAnnotation]));
+            $property->omitDefaultValue();
+            $property->setDocBlock($this->createDocBlock($annotations));
             $classGenerator->addPropertyFromGenerator($property);
         }
 
@@ -173,6 +141,66 @@ class CodeGenerator
             ->setNamespace($namespace)
             ->setUse('Zp\\Supple\\Annotation', 'Elastic')
             ->setClass($classGenerator);
+    }
+
+    /**
+     * @param string $name
+     * @param array<string, mixed> $properties
+     * @return Tag\GenericTag
+     */
+    private function composeAnnotation(string $name, array $properties): Tag\GenericTag
+    {
+        return new Tag\GenericTag(sprintf('%s(%s)', $name, $this->composeAnnotationProperties($properties)));
+    }
+
+    /**
+     * @param array<mixed> $properties
+     * @return string
+     */
+    private function composeAnnotationProperties(array $properties, bool $root = true): string
+    {
+        $generated = [];
+        foreach ($properties as $name => $value) {
+            if ($root === true && $name === 'properties') {
+                continue;
+            }
+
+            if (is_numeric($name)) {
+                $assign = '';
+            } else {
+                $quotize = $root
+                    ? function (string $name): string {
+                        return $name;
+                    }
+                    : function (string $name): string {
+                        return sprintf('"%s"', $name);
+                    };
+
+                $stringifyName = (string)$name;
+                $normalized = $root
+                    ? $this->toCamelCase($stringifyName)
+                    : $stringifyName;
+                $assign = sprintf('%s=', $quotize($normalized));
+            }
+
+            if (is_array($value)) {
+                $generated[] = sprintf('%s{%s}', $assign, $this->composeAnnotationProperties($value, false));
+            } elseif (is_string($value)) {
+                $generated[] = sprintf('%s"%s"', $assign, $value);
+            } else {
+                $generated[] = sprintf('%s%s', $assign, var_export($value, true));
+            }
+        }
+        return sprintf('%s', implode(', ', $generated));
+    }
+
+    /**
+     * @param array<Tag\TagInterface> $annotations
+     * @return DocBlockGenerator
+     */
+    private function createDocBlock(array $annotations): DocBlockGenerator
+    {
+        return DocBlockGenerator::fromArray(['tags' => $annotations])->setWordWrap(false);
     }
 
     private function composeTargetClass(string $namespace, string $objectClassName): string

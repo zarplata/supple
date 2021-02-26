@@ -26,7 +26,7 @@ class Supple
     private $indexer;
 
     /** @var array<string, Configuration> */
-    private $configurations;
+    private $configurations = [];
 
     public function __construct(ClientInterface $client, MetadataFactory $metadataFactory, Indexer $indexer)
     {

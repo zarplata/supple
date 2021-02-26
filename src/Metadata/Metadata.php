@@ -29,7 +29,7 @@ class Metadata
     /** @var ?MetadataProperty */
     public $identifierProperty;
 
-    /** @var array<string, MetadataProperty> */
+    /** @var array<MetadataProperty> */
     public $properties = [];
 
     /** @var array<string, array<mixed>> */
