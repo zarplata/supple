@@ -85,7 +85,7 @@ return static function (bool $logging): Supple {
                  */
                 public function route(object $document, Index $index, RoutingInterface $routing): void
                 {
-                    if ($index->nameMatchingTo(sprintf('posts-%s', $document->createdAt->format('Y')))) {
+                    if ($index->matchNameTo(sprintf('posts-%s', $document->createdAt->format('Y')))) {
                         $routing->indexTo($index);
                     } else {
                         $routing->deleteFrom($index);

@@ -11,6 +11,9 @@ final class IndexMappings implements JsonSerializable
     /** @var array<string, mixed> */
     private $mappings;
 
+    /** @var string */
+    private $type = '';
+
     /**
      * @param array<string, mixed> $mappings
      */
@@ -25,6 +28,16 @@ final class IndexMappings implements JsonSerializable
     public function getProperties(): array
     {
         return $this->mappings['_doc']['properties'] ?? $this->mappings['properties'];
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 
     /**
@@ -56,7 +69,11 @@ final class IndexMappings implements JsonSerializable
 
     public function jsonSerialize(): object
     {
-        return (object)(self::sort($this->mappings));
+        $mapping = (object)(self::sort($this->mappings));
+        if ($this->type !== '') {
+            return (object)[$this->type => $mapping];
+        }
+        return $mapping;
     }
 
     /**

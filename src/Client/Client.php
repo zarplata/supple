@@ -100,7 +100,7 @@ class Client implements ClientInterface
     public function putIndex(Index $index): void
     {
         if ($this->hasMappingType) {
-            $index->setType(self::TYPE);
+            $index->setMappingType(self::TYPE);
         }
         $this->client->indices()->create(
             [

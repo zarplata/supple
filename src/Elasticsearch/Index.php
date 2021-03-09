@@ -11,9 +11,6 @@ final class Index implements JsonSerializable
     /** @var string */
     private $name;
 
-    /** @var ?string */
-    private $type;
-
     /** @var IndexMappings */
     private $mappings;
 
@@ -32,14 +29,14 @@ final class Index implements JsonSerializable
         return $this->name;
     }
 
-    public function nameMatchingTo(string $pattern): bool
+    public function matchNameTo(string $pattern): bool
     {
         return fnmatch($pattern, $this->name);
     }
 
-    public function setType(string $mappingType): void
+    public function setMappingType(string $mappingType): void
     {
-        $this->type = $mappingType;
+        $this->mappings->setType($mappingType);
     }
 
     public function getMappings(): IndexMappings
@@ -77,7 +74,7 @@ final class Index implements JsonSerializable
     public function copyTypeFrom(Index $other): self
     {
         $clone = clone $this;
-        $clone->type = $other->type;
+        $clone->mappings->setType($other->mappings->getType());
         return $this;
     }
 
@@ -88,19 +85,18 @@ final class Index implements JsonSerializable
         return $clone;
     }
 
-    /**
-     * @return array<mixed>
-     */
-    public function jsonSerialize(): array
+    public function jsonSerialize(): object
     {
-        $mapping = $this->mappings;
-        if ($this->type !== null) {
-            $mapping = [$this->type => $mapping];
-        }
-        return [
-            'mappings' => $mapping,
+        return (object)[
+            'mappings' => $this->mappings,
             'settings' => $this->settings,
         ];
+    }
+
+    public function __clone()
+    {
+        $this->mappings = clone $this->mappings;
+        $this->settings = clone $this->settings;
     }
 
     /**
