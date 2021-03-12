@@ -21,7 +21,8 @@ class MigrationExecuteCommand extends Command
         $this->setName('supple:migration:execute')
             ->setDescription('Generate and execute migrations')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only print migrations')
-            ->addOption('no-diff', null, InputOption::VALUE_NONE, 'Does not print migration diff');
+            ->addOption('no-diff', null, InputOption::VALUE_NONE, 'Does not print migration diff')
+            ->addOption('full-diff', null, InputOption::VALUE_NONE, 'Print full migration diff');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -35,7 +36,9 @@ class MigrationExecuteCommand extends Command
             return 0;
         }
 
-        $differ = Differ::getInstance()->setOptions(['context' => Differ::CONTEXT_ALL, 'ignoreWhitespace' => true]);
+        $context = $input->getOption('full-diff') ? Differ::CONTEXT_ALL : 5;
+        $differ = Differ::getInstance()->setOptions(['context' => $context, 'ignoreWhitespace' => true]);
+
         $renderer = new MigrationDiffRenderer();
         $showDiff = (bool)$input->getOption('no-diff') === false;
         $hasErrors = false;

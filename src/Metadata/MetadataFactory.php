@@ -100,6 +100,20 @@ class MetadataFactory
                 $metadata->analysis[] = $annotation;
             }
         );
+        self::parseAnyAnnotations(
+            $annotations,
+            Annotation\Property::class,
+            function (Annotation\Property $annotation) use ($metadata): void {
+                if ($annotation->name === '') {
+                    throw new MetadataException(
+                        sprintf('please provide name of class %s property', $metadata->className)
+                    );
+                }
+                $property = new MetadataProperty($annotation->name);
+                $this->populateProperty($annotation, $property);
+                $metadata->properties[$property->name] = $property;
+            }
+        );
     }
 
     /**
@@ -115,108 +129,9 @@ class MetadataFactory
 
             self::parseExactlyOneAnnotation(
                 $annotations,
-                Annotation\Mapping::class,
-                function (Annotation\Mapping $annotation) use ($property): void {
-                    if ($annotation->name !== null) {
-                        $property->name = $annotation->name;
-                    }
-
-                    if ($annotation->type) {
-                        $property->mapping['type'] = $annotation->type;
-                    }
-
-                    if ($annotation instanceof Annotation\EmbeddedMapping) {
-                        $targetMetadata = $this->create($annotation->targetClass);
-
-                        $property->mapping['properties'] = array_map(
-                            static function (MetadataProperty $property) {
-                                return $property->mapping;
-                            },
-                            $targetMetadata->properties
-                        );
-                    }
-
-                    if ($annotation->analyzer !== null) {
-                        $property->mapping['analyzer'] = $annotation->analyzer;
-                    }
-                    if ($annotation->boost !== null) {
-                        $property->mapping['boost'] = $annotation->boost;
-                    }
-                    if ($annotation->coerce !== null) {
-                        $property->mapping['coerce'] = $annotation->coerce;
-                    }
-                    if ($annotation->copyTo !== null) {
-                        $property->mapping['copy_to'] = $annotation->copyTo;
-                    }
-                    if ($annotation->docValues !== null) {
-                        $property->mapping['doc_values'] = $annotation->docValues;
-                    }
-                    if ($annotation->dynamic !== null) {
-                        $property->mapping['dynamic'] = $annotation->dynamic;
-                    }
-                    if ($annotation->eagerGlobalOrdinals !== null) {
-                        $property->mapping['eager_global_ordinals'] = $annotation->eagerGlobalOrdinals;
-                    }
-                    if ($annotation->enabled !== null) {
-                        $property->mapping['enabled'] = $annotation->enabled;
-                    }
-                    if ($annotation->format !== null) {
-                        $property->mapping['format'] = $annotation->format;
-                    }
-                    if ($annotation->ignoreAbove !== null) {
-                        $property->mapping['ignore_above'] = $annotation->ignoreAbove;
-                    }
-                    if ($annotation->ignoreMalformed !== null) {
-                        $property->mapping['ignore_malformed'] = $annotation->ignoreMalformed;
-                    }
-                    if ($annotation->index !== null) {
-                        $property->mapping['index'] = $annotation->index;
-                    }
-                    if ($annotation->indexOptions !== null) {
-                        $property->mapping['index_options'] = $annotation->indexOptions;
-                    }
-                    if ($annotation->indexPhrases !== null) {
-                        $property->mapping['index_phrases'] = $annotation->indexPhrases;
-                    }
-                    if ($annotation->indexPrefixes !== null) {
-                        $property->mapping['index_prefixes'] = $annotation->indexPrefixes;
-                    }
-                    if ($annotation->meta !== null) {
-                        $property->mapping['meta'] = $annotation->meta;
-                    }
-                    if ($annotation->fields !== null) {
-                        $property->mapping['fields'] = $annotation->fields;
-                    }
-                    if ($annotation->normalizer !== null) {
-                        $property->mapping['normalizer'] = $annotation->normalizer;
-                    }
-                    if ($annotation->norms !== null) {
-                        $property->mapping['norms'] = $annotation->norms;
-                    }
-                    if ($annotation->nullValue !== null) {
-                        $property->mapping['null_value'] = $annotation->nullValue;
-                    }
-                    if ($annotation->positionIncrementGap !== null) {
-                        $property->mapping['position_increment_gap'] = $annotation->positionIncrementGap;
-                    }
-                    if ($annotation->scalingFactor !== null) {
-                        $property->mapping['scaling_factor'] = $annotation->scalingFactor;
-                    }
-                    if ($annotation->searchAnalyzer !== null) {
-                        $property->mapping['search_analyzer'] = $annotation->searchAnalyzer;
-                    }
-                    if ($annotation->searchQuoteAnalyzer !== null) {
-                        $property->mapping['search_quote_analyzer'] = $annotation->searchQuoteAnalyzer;
-                    }
-                    if ($annotation->similarity !== null) {
-                        $property->mapping['similarity'] = $annotation->similarity;
-                    }
-                    if ($annotation->store !== null) {
-                        $property->mapping['store'] = $annotation->store;
-                    }
-                    if ($annotation->termVector !== null) {
-                        $property->mapping['term_vector'] = $annotation->termVector;
-                    }
+                Annotation\Property::class,
+                function (Annotation\Property $annotation) use ($property): void {
+                    $this->populateProperty($annotation, $property);
                 }
             );
 
@@ -297,6 +212,118 @@ class MetadataFactory
                 return;
             default:
                 throw new MetadataException(sprintf('annotation %s must used once', $className));
+        }
+    }
+
+    private function populateProperty(Annotation\Property $annotation, MetadataProperty $property): void
+    {
+        if ($annotation->name !== null) {
+            $property->name = $annotation->name;
+        }
+
+        if ($annotation->type) {
+            $property->mapping['type'] = $annotation->type;
+        }
+
+        if ($annotation instanceof Annotation\EmbeddedProperty) {
+            $targetMetadata = $this->create($annotation->targetClass);
+
+            $property->mapping['properties'] = array_replace(
+                $annotation->properties,
+                array_map(
+                    static function (MetadataProperty $property) {
+                        return $property->mapping;
+                    },
+                    $targetMetadata->properties
+                )
+            );
+        } elseif (count($annotation->properties) > 0) {
+            $property->mapping['properties'] = $annotation->properties;
+        }
+
+        if ($annotation->analyzer !== null) {
+            $property->mapping['analyzer'] = $annotation->analyzer;
+        }
+        if ($annotation->boost !== null) {
+            $property->mapping['boost'] = $annotation->boost;
+        }
+        if ($annotation->coerce !== null) {
+            $property->mapping['coerce'] = $annotation->coerce;
+        }
+        if ($annotation->copyTo !== null) {
+            $property->mapping['copy_to'] = $annotation->copyTo;
+        }
+        if ($annotation->docValues !== null) {
+            $property->mapping['doc_values'] = $annotation->docValues;
+        }
+        if ($annotation->dynamic !== null) {
+            $property->mapping['dynamic'] = $annotation->dynamic;
+        }
+        if ($annotation->eagerGlobalOrdinals !== null) {
+            $property->mapping['eager_global_ordinals'] = $annotation->eagerGlobalOrdinals;
+        }
+        if ($annotation->enabled !== null) {
+            $property->mapping['enabled'] = $annotation->enabled;
+        }
+        if ($annotation->format !== null) {
+            $property->mapping['format'] = $annotation->format;
+        }
+        if ($annotation->ignoreAbove !== null) {
+            $property->mapping['ignore_above'] = $annotation->ignoreAbove;
+        }
+        if ($annotation->ignoreMalformed !== null) {
+            $property->mapping['ignore_malformed'] = $annotation->ignoreMalformed;
+        }
+        if ($annotation->index !== null) {
+            $property->mapping['index'] = $annotation->index;
+        }
+        if ($annotation->indexOptions !== null) {
+            $property->mapping['index_options'] = $annotation->indexOptions;
+        }
+        if ($annotation->indexPhrases !== null) {
+            $property->mapping['index_phrases'] = $annotation->indexPhrases;
+        }
+        if ($annotation->indexPrefixes !== null) {
+            $property->mapping['index_prefixes'] = $annotation->indexPrefixes;
+        }
+        if ($annotation->meta !== null) {
+            $property->mapping['meta'] = $annotation->meta;
+        }
+        if ($annotation->fields !== null) {
+            $property->mapping['fields'] = $annotation->fields;
+        }
+        if ($annotation->normalizer !== null) {
+            $property->mapping['normalizer'] = $annotation->normalizer;
+        }
+        if ($annotation->norms !== null) {
+            $property->mapping['norms'] = $annotation->norms;
+        }
+        if ($annotation->nullValue !== null) {
+            $property->mapping['null_value'] = $annotation->nullValue;
+        }
+        if ($annotation->path !== null) {
+            $property->mapping['path'] = $annotation->path;
+        }
+        if ($annotation->positionIncrementGap !== null) {
+            $property->mapping['position_increment_gap'] = $annotation->positionIncrementGap;
+        }
+        if ($annotation->scalingFactor !== null) {
+            $property->mapping['scaling_factor'] = $annotation->scalingFactor;
+        }
+        if ($annotation->searchAnalyzer !== null) {
+            $property->mapping['search_analyzer'] = $annotation->searchAnalyzer;
+        }
+        if ($annotation->searchQuoteAnalyzer !== null) {
+            $property->mapping['search_quote_analyzer'] = $annotation->searchQuoteAnalyzer;
+        }
+        if ($annotation->similarity !== null) {
+            $property->mapping['similarity'] = $annotation->similarity;
+        }
+        if ($annotation->store !== null) {
+            $property->mapping['store'] = $annotation->store;
+        }
+        if ($annotation->termVector !== null) {
+            $property->mapping['term_vector'] = $annotation->termVector;
         }
     }
 }

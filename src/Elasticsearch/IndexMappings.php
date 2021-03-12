@@ -69,11 +69,7 @@ final class IndexMappings implements JsonSerializable
 
     public function jsonSerialize(): object
     {
-        $mapping = (object)(self::sort($this->mappings));
-        if ($this->type !== '') {
-            return (object)[$this->type => $mapping];
-        }
-        return $mapping;
+        return (object)(self::sort($this->mappings));
     }
 
     /**

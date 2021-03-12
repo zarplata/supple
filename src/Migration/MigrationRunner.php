@@ -142,8 +142,8 @@ final class MigrationRunner
                     new PutIndexMappingsMigrationCommand($localIndex),
                     new MigrationCommandDetails(
                         sprintf('index `%s` mappings has been updated', $localIndex->getName()),
-                        (string)($localIndex),
-                        (string)$remoteIndex
+                        (string)($localIndex->getMappings()),
+                        (string)$remoteIndex->getMappings()
                     )
                 );
             }
@@ -156,8 +156,8 @@ final class MigrationRunner
                         $command->wrapCloseIndex(),
                         new MigrationCommandDetails(
                             sprintf('index `%s` settings has been updated [index was closed]', $localIndex->getName()),
-                            (string)($localIndex),
-                            (string)$remoteIndex
+                            (string)($localIndex->getSettings()),
+                            (string)$remoteIndex->getSettings()
                         )
                     );
                 } else {
@@ -165,8 +165,8 @@ final class MigrationRunner
                         $command,
                         new MigrationCommandDetails(
                             sprintf('index `%s` settings has been updated', $localIndex->getName()),
-                            (string)($localIndex),
-                            (string)$remoteIndex
+                            (string)($localIndex->getSettings()),
+                            (string)$remoteIndex->getSettings()
                         )
                     );
                 }

@@ -46,9 +46,12 @@ class SuppleBuilder
      * @param \Elasticsearch\Client $client
      * @return $this
      */
-    public function useElasticsearchClient(\Elasticsearch\Client $client): self
+    public function useElasticsearchClient($client, ?bool $hasMappingType): self
     {
-        $this->client = new Client($client);
+        $this->client = new Client(
+            $client,
+            $hasMappingType ?? (bool)version_compare('7.0.0', $client::VERSION, '>')
+        );
         return $this;
     }
 

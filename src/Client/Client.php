@@ -21,12 +21,12 @@ class Client implements ClientInterface
     private $client;
 
     /** @var bool */
-    private $hasMappingType;
+    private $useMappingType;
 
-    public function __construct(ElasticsearchClient $client)
+    public function __construct($client, bool $useMappingType)
     {
         $this->client = $client;
-        $this->hasMappingType = (bool)version_compare('7.0.0', $client::VERSION, '>');
+        $this->hasMappingType = $useMappingType;
     }
 
     /**
@@ -100,7 +100,7 @@ class Client implements ClientInterface
     public function putIndex(Index $index): void
     {
         if ($this->hasMappingType) {
-            $index->setMappingType(self::TYPE);
+            $index->setType(self::TYPE);
         }
         $this->client->indices()->create(
             [
@@ -122,11 +122,15 @@ class Client implements ClientInterface
 
     public function putIndexMappings(Index $index): void
     {
+        $params = [
+            'index' => $index->getName(),
+            'body' => $index->getMappings(),
+        ];
+        if ($this->hasMappingType) {
+            $params['type'] = self::TYPE;
+        }
         $this->client->indices()->putMapping(
-            [
-                'index' => $index->getName(),
-                'body' => $index->getMappings(),
-            ]
+            $params
         );
     }
 

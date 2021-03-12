@@ -11,6 +11,9 @@ final class Index implements JsonSerializable
     /** @var string */
     private $name;
 
+    /** @var string */
+    private $type = '';
+
     /** @var IndexMappings */
     private $mappings;
 
@@ -34,9 +37,9 @@ final class Index implements JsonSerializable
         return fnmatch($pattern, $this->name);
     }
 
-    public function setMappingType(string $mappingType): void
+    public function setType(string $type): void
     {
-        $this->mappings->setType($mappingType);
+        $this->type = $type;
     }
 
     public function getMappings(): IndexMappings
@@ -87,8 +90,12 @@ final class Index implements JsonSerializable
 
     public function jsonSerialize(): object
     {
+        $mappings = $this->type
+            ? [$this->type => $this->mappings]
+            : $this->mappings;
+
         return (object)[
-            'mappings' => $this->mappings,
+            'mappings' => $mappings,
             'settings' => $this->settings,
         ];
     }

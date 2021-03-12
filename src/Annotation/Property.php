@@ -6,9 +6,9 @@ namespace Zp\Supple\Annotation;
 
 /**
  * @Annotation
- * @Target("PROPERTY")
+ * @Target("CLASS", "PROPERTY")
  */
-class Mapping
+class Property
 {
     /** @var string */
     public $name;
@@ -79,8 +79,14 @@ class Mapping
     /** @var mixed */
     public $nullValue;
 
+    /** @var string */
+    public $path;
+
     /** @var int */
     public $positionIncrementGap;
+
+    /** @var array */
+    public $properties = [];
 
     /** @var int */
     public $scalingFactor;

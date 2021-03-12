@@ -106,20 +106,20 @@ class CodeGenerator
 
             $annotations = [];
             switch ($mappingProperty['type']) {
+                case '':
                 case 'object':
                     $objectClassName = sprintf('%s%s', $className, ucfirst($normalizedPropertyName));
                     $mappingProperty['targetClass'] = $this->composeTargetClass($namespace, $objectClassName);
                     $annotations[] = new Tag\VarTag(null, $objectClassName);
-                    $annotations[] = $this->composeAnnotation('Elastic\\EmbeddedMapping', $mappingProperty);
+                    $annotations[] = $this->composeAnnotation('Elastic\\EmbeddedProperty', $mappingProperty);
                     yield from $this->generateClass($namespace, $objectClassName, $mappingProperty['properties'], null);
                     break;
 
-                case '':
                 case 'nested':
                     $objectClassName = sprintf('%s%s', $className, ucfirst($normalizedPropertyName));
                     $mappingProperty['targetClass'] = $this->composeTargetClass($namespace, $objectClassName);
                     $annotations[] = new Tag\VarTag(null, sprintf('array<%s>', $objectClassName));
-                    $annotations[] = $this->composeAnnotation('Elastic\\EmbeddedMapping', $mappingProperty);
+                    $annotations[] = $this->composeAnnotation('Elastic\\EmbeddedProperty', $mappingProperty);
                     yield from $this->generateClass($namespace, $objectClassName, $mappingProperty['properties'], null);
                     break;
 
@@ -128,7 +128,7 @@ class CodeGenerator
                         throw new UnexpectedValueException(sprintf('unexpected type: %s', $mappingProperty['type']));
                     }
                     $annotations[] = new Tag\VarTag(null, self::PHP_TYPES_MAP[$mappingProperty['type']]);
-                    $annotations[] = $this->composeAnnotation('Elastic\\Mapping', $mappingProperty);
+                    $annotations[] = $this->composeAnnotation('Elastic\\Property', $mappingProperty);
             }
 
             $property->omitDefaultValue();

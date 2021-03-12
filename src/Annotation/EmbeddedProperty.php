@@ -6,10 +6,13 @@ namespace Zp\Supple\Annotation;
 
 /**
  * @Annotation
- * @Target("PROPERTY")
+ * @Target("CLASS", "PROPERTY")
  */
-class EmbeddedMapping extends Mapping
+class EmbeddedProperty extends Property
 {
+    /** @var string */
+    public $type = '';
+
     /**
      * @Required
      * @psalm-var class-string
