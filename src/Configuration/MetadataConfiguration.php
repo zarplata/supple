@@ -2,14 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Zp\Supple\Metadata;
+namespace Zp\Supple\Configuration;
 
 use Zp\Supple\ConfigurableInterface;
 use Zp\Supple\ConfigurationProfileInterface;
 use Zp\Supple\Indexation\IdentifierResolverFactory;
+use Zp\Supple\Metadata\Metadata;
 use Zp\Supple\SuppleConfigurationException;
 
-class MetadataConfigurationProfile implements ConfigurationProfileInterface
+use function count;
+
+class MetadataConfiguration implements ConfigurationProfileInterface
 {
     /** @var Metadata */
     private $metadata;

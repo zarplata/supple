@@ -10,7 +10,7 @@ use Zp\Supple\Configuration\ConfigurationValidator;
 use Zp\Supple\Generator\CodeGenerator;
 use Zp\Supple\Indexation\IndexationResult;
 use Zp\Supple\Indexation\Indexer;
-use Zp\Supple\Metadata\MetadataConfigurationProfile;
+use Zp\Supple\Configuration\MetadataConfiguration;
 use Zp\Supple\Metadata\MetadataFactory;
 use Zp\Supple\Migration\MigrationRunner;
 
@@ -52,7 +52,7 @@ class Supple
 
         $configuration = new Configuration($documentClass);
         $configuration->configure(
-            new MetadataConfigurationProfile($metadata),
+            new MetadataConfiguration($metadata),
             ...$profiles
         );
 
