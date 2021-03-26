@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zp\Supple\Configuration;
 
 use Zp\Supple\ConfigurableInterface;
+use Zp\Supple\ConfigurationProfileInterface;
 use Zp\Supple\Elasticsearch\Index;
 use Zp\Supple\Elasticsearch\IndexMappings;
 use Zp\Supple\Elasticsearch\IndexSettings;
@@ -104,6 +105,14 @@ class Configuration implements ConfigurableInterface
     public function getDocumentIdentifierResolver(): IdentifierResolverInterface
     {
         return $this->documentIdentifierResolver;
+    }
+
+    public function configure(ConfigurationProfileInterface ...$profiles): ConfigurableInterface
+    {
+        foreach ($profiles as $profile) {
+            $profile->configure($this);
+        }
+        return $this;
     }
 
     public function toIndices(string ...$indices): ConfigurableInterface

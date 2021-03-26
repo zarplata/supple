@@ -9,6 +9,8 @@ use Zp\Supple\Indexation\RouterInterface;
 
 interface ConfigurableInterface
 {
+    public function configure(ConfigurationProfileInterface ...$profiles): self;
+
     /**
      * @param string ...$indices
      * @return $this

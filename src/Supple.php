@@ -48,12 +48,13 @@ class Supple
         string $documentClass,
         ConfigurationProfileInterface ...$profiles
     ): ConfigurableInterface {
-        $configuration = new Configuration($documentClass);
         $metadata = $this->metadataFactory->create($documentClass);
 
-        foreach ($this->composeConfigurationProfiles($metadata, $profiles) as $profile) {
-            $profile->configure($configuration);
-        }
+        $configuration = new Configuration($documentClass);
+        $configuration->configure(
+            new MetadataConfigurationProfile($metadata),
+            ...$profiles
+        );
 
         $this->configurations[$documentClass] = $configuration;
         return $configuration;
@@ -149,18 +150,5 @@ class Supple
     public function generateCode(): CodeGenerator
     {
         return new CodeGenerator($this->client);
-    }
-
-    /**
-     * @param \Zp\Supple\Metadata\Metadata $metadata
-     * @param array<\Zp\Supple\ConfigurationProfileInterface> $profiles
-     * @return array<\Zp\Supple\ConfigurationProfileInterface>
-     */
-    private function composeConfigurationProfiles(Metadata\Metadata $metadata, array $profiles): array
-    {
-        return array_merge(
-            [new MetadataConfigurationProfile($metadata)],
-            $profiles
-        );
     }
 }
