@@ -61,24 +61,6 @@ class Supple
     }
 
     /**
-     * Validate configurations and throws exception
-     *
-     * @throws SuppleConfigurationException
-     */
-    public function ensureConfigurationsIsValid(): void
-    {
-        foreach ($this->configurations as $name => $configuration) {
-            try {
-                ConfigurationValidator::ensureIsValid($configuration);
-            } catch (SuppleConfigurationException $e) {
-                throw new SuppleConfigurationException(
-                    sprintf('configuration `%s` is invalid: %s', $name, $e->getMessage()),
-                );
-            }
-        }
-    }
-
-    /**
      * Index document.
      *
      * @param object $document
