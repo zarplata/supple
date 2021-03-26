@@ -60,6 +60,14 @@ class Supple
         return $configuration;
     }
 
+    public function configuration(string $configurationName): Configuration
+    {
+        if (!array_key_exists($configurationName, $this->configurations)) {
+            throw new SuppleConfigurationException(sprintf('configuration %s not found', $configurationName));
+        }
+        return $this->configurations[$configurationName];
+    }
+
     /**
      * Index document.
      *
@@ -80,8 +88,7 @@ class Supple
      */
     public function indexTo(string $configurationName, object $document): void
     {
-        $configuration = $this->configurations[$configurationName];
-        $this->indexer->index($configuration, $document);
+        $this->indexer->index($this->configuration($configurationName), $document);
     }
 
     /**
@@ -93,7 +100,7 @@ class Supple
      */
     public function deleteFrom(string $configurationName, string $id): void
     {
-        $configuration = $this->configurations[$configurationName];
+        $configuration = $this->configuration($configurationName);
         $this->indexer->delete($configuration, $id);
     }
 
