@@ -43,7 +43,7 @@ class MigrationExecuteCommand extends Command
         $showDiff = (bool)$input->getOption('no-diff') === false;
         $hasErrors = false;
 
-        foreach ($runner->execute() as $migration) {
+        foreach ($runner->executeGenerator() as $migration) {
             $output->writeln(sprintf('<info>execute migration for document `%s`</info>', $migration->getName()));
             if ($showDiff) {
                 $output->writeln('');

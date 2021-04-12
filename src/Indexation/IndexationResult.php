@@ -28,9 +28,9 @@ class IndexationResult
     }
 
     /**
-     * @return iterable<IndexationError>
+     * @return \Generator<IndexationError>
      */
-    public function getErrors(): iterable
+    public function getErrors(): \Generator
     {
         foreach ($this->changeSets as $changeSet) {
             if ($changeSet->hasErrors()) {

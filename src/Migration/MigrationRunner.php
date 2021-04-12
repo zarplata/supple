@@ -44,10 +44,19 @@ final class MigrationRunner
     }
 
     /**
+     * @return list<Migration>
+     * @throws SuppleException
+     */
+    public function execute(): array
+    {
+        return iterator_to_array($this->executeGenerator());
+    }
+
+    /**
      * @return Generator<Migration>
      * @throws SuppleException
      */
-    public function execute(): Generator
+    public function executeGenerator(): Generator
     {
         foreach ($this->migrations as $plan) {
             $plan->execute($this->client);
