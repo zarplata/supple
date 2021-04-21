@@ -59,7 +59,10 @@ class IndexSettings implements JsonSerializable, IteratorAggregate
     public function removeNotUpdateableSettings(): self
     {
         $clone = clone $this;
-        unset($clone->settings['index.number_of_shards']);
+        unset(
+            $clone->settings['index.number_of_shards'],
+            $clone->settings['index.history.uuid']
+        );
         return $clone;
     }
 
