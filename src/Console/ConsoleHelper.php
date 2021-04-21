@@ -7,7 +7,7 @@ namespace Zp\Supple\Console;
 use Symfony\Component\Console\Helper\Helper;
 use Zp\Supple\Supple;
 
-class SuppleHelper extends Helper
+class ConsoleHelper extends Helper
 {
     /** @var Supple */
     protected $supple;

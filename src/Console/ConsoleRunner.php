@@ -22,7 +22,7 @@ class ConsoleRunner
      */
     public static function createHelperSet(Supple $supple): HelperSet
     {
-        return new HelperSet(['supple' => new SuppleHelper($supple)]);
+        return new HelperSet(['supple' => new ConsoleHelper($supple)]);
     }
 
     /**
