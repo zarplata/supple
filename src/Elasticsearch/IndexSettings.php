@@ -61,7 +61,8 @@ class IndexSettings implements JsonSerializable, IteratorAggregate
         $clone = clone $this;
         unset(
             $clone->settings['index.number_of_shards'],
-            $clone->settings['index.history.uuid']
+            $clone->settings['index.history.uuid'],
+            $clone->settings['index.soft_deletes.enabled'],
         );
         return $clone;
     }
