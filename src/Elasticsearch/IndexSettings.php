@@ -18,6 +18,7 @@ class IndexSettings implements JsonSerializable, IteratorAggregate
         'index.number_of_shards',
         'index.number_of_replicas',
         'index.routing.allocation.include._tier_preference',
+        'index.soft_deletes.enabled',
     ];
 
     /** @var array<string, ?string> */
