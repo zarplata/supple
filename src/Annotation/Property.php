@@ -70,6 +70,9 @@ class Property
     /** @var array<mixed> */
     public $meta;
 
+    /** @var bool */
+    public $fielddata;
+
     /** @var mixed */
     public $fields;
 

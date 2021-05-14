@@ -292,6 +292,9 @@ class MetadataFactory
         if ($annotation->meta !== null) {
             $property->mapping['meta'] = $annotation->meta;
         }
+        if ($annotation->fielddata !== null) {
+            $property->mapping['fielddata'] = $annotation->fielddata;
+        }
         if ($annotation->fields !== null) {
             $property->mapping['fields'] = $annotation->fields;
         }
