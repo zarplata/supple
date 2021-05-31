@@ -5,7 +5,7 @@
   "license": "MIT",
   "keywords": ["elasticsearch", "elastic", "document", "mapper", "indexer"],
   "require": {
-    "php": "^7.3",
+    "php": "^7.3 || ^8.0",
     "ext-json": "*",
     "doctrine/annotations": "^1.11",
     "elasticsearch/elasticsearch": "^6.5|^7.0",
