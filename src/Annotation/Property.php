@@ -6,7 +6,7 @@ namespace Zp\Supple\Annotation;
 
 /**
  * @Annotation
- * @Target("CLASS", "PROPERTY")
+ * @Target({"CLASS", "PROPERTY"})
  */
 class Property
 {
