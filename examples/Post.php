@@ -13,38 +13,38 @@ class Post
 {
     /**
      * @Elastic\ID()
-     * @Elastic\Mapping(type="keyword")
+     * @Elastic\Property(type="keyword")
      * @var int
      */
     public $id;
 
     /**
-     * @Elastic\Mapping(type="keyword")
+     * @Elastic\Property(type="keyword")
      * @Serializer\Type("int")
      * @var int
      */
     public $authorID;
 
     /**
-     * @Elastic\Mapping(type="text", analyzer="my_custom_analyzer")
+     * @Elastic\Property(type="text", analyzer="my_custom_analyzer")
      * @var string
      */
     public $authorName;
 
     /**
-     * @Elastic\Mapping(type="text")
+     * @Elastic\Property(type="text")
      * @var string
      */
     public $content;
 
     /**
-     * @Elastic\Mapping(type="date")
+     * @Elastic\Property(type="date")
      * @var DateTime
      */
     public $createdAt;
 
     /**
-     * @Elastic\EmbeddedMapping(type="", targetClass="PostComment")
+     * @Elastic\EmbeddedProperty(type="", targetClass="PostComment")
      * @var array<PostComment>
      */
     public $comments;

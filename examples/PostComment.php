@@ -7,14 +7,14 @@ use Zp\Supple\Annotation as Elastic;
 class PostComment
 {
     /**
+     * @Elastic\Property(type="keyword", index=false)
      * @var string
-     * @Elastic\Mapping(type="keyword", index=false)
      */
     public $authorName;
 
     /**
+     * @Elastic\Property(type="keyword")
      * @var string
-     * @Elastic\Mapping(type="keyword")
      */
     public $comment;
 }

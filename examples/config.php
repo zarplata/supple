@@ -50,7 +50,7 @@ return static function (bool $logging): Supple {
     };
 
     $supple = SuppleBuilder::create()
-        ->useElasticsearchClient($client->build())
+        ->useElasticsearchClient($client->build(), true)
         ->build();
 
     $supple->registerDocument(Post::class, $analysisProfile, $clusterProfile)
