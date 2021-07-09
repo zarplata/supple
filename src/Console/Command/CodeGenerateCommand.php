@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Zp\Supple\Console\Command;
 
-use Laminas\Code\Generator\FileGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Zp\Supple\Generator\Writer;
 use Zp\Supple\Supple;
 
 class CodeGenerateCommand extends Command
@@ -29,27 +29,25 @@ class CodeGenerateCommand extends Command
         $supple = $this->getHelper('supple')->getSupple();
         /** @var string $index */
         $index = $input->getArgument('index');
-        /** @var string $className */
+        /** @var class-string $className */
         $className = $input->getArgument('classname');
         /** @var string $directory */
         $directory = $input->getArgument('directory');
         /** @var ?string $namespace */
         $namespace = $input->getOption('namespace');
 
-        $fileGenerators = $supple->generateCode()->execute(
-            $index,
-            $className,
-            (string)$namespace
-        );
+        $writers = $supple->generateCode()->generate($index, $className, (string)$namespace);
 
-        /** @var FileGenerator $fileGenerator */
-        foreach ($fileGenerators as $fileGenerator) {
-            $path = sprintf('%s/%s', $directory, $fileGenerator->getFilename());
-            $output->writeln(sprintf('writing %s to %s', $fileGenerator->getClass()->getName(), $path));
-            file_put_contents(
-                $path,
-                $fileGenerator->generate()
+        /** @var Writer $writer */
+        foreach ($writers as $writer) {
+            $output->writeln(
+                sprintf(
+                    'write class <info>%s</info> to <info>%s</info>',
+                    $writer->getClassName(),
+                    $writer->getFullPath($directory)
+                )
             );
+            $writer->write($directory);
         }
         return 0;
     }

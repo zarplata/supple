@@ -11,7 +11,7 @@
     "elasticsearch/elasticsearch": "^6.5|^7.0",
     "jfcherng/php-diff": "^6.9",
     "jms/serializer": "^3.11",
-    "laminas/laminas-code": "^3.5"
+    "laminas/laminas-code": "^4.4"
   },
   "require-dev": {
     "monolog/monolog": "^2.2",

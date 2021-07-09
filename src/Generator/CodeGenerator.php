@@ -13,7 +13,6 @@ use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\PropertyGenerator;
 use RuntimeException;
-use Sabre\DAV\Xml\Element\Prop;
 use UnexpectedValueException;
 use Zp\Supple\ClientInterface;
 use Zp\Supple\Model\GeoPoint;
@@ -42,12 +41,12 @@ class CodeGenerator
 
     /**
      * @param string $indexName
-     * @param string $className
+     * @param class-string $className
      * @param string $namespace
-     * @return Generator<FileGenerator>
+     * @return Generator<\Zp\Supple\Generator\Writer>
      * @throws Exception
      */
-    public function execute(string $indexName, string $className, string $namespace = ''): Generator
+    public function generate(string $indexName, string $className, string $namespace = ''): Generator
     {
         if (!$this->client->hasIndex($indexName)) {
             throw new RuntimeException(sprintf('index `%s` not found', $indexName));
@@ -70,10 +69,10 @@ class CodeGenerator
 
     /**
      * @param string $namespace
-     * @param string $className
+     * @param class-string $className
      * @param array<string, mixed> $mappingProperties
      * @param ?DocBlockGenerator $classDocBlock
-     * @return Generator<FileGenerator>
+     * @return Generator<Writer>
      * @throws Exception
      */
     private function generateClass(
@@ -136,11 +135,13 @@ class CodeGenerator
             $classGenerator->addPropertyFromGenerator($property);
         }
 
-        yield (new FileGenerator())
+        $fileGenerator = (new FileGenerator())
             ->setFilename($className . '.php')
             ->setNamespace($namespace)
             ->setUse('Zp\\Supple\\Annotation', 'Elastic')
             ->setClass($classGenerator);
+
+        yield new Writer($fileGenerator);
     }
 
     /**
@@ -155,6 +156,7 @@ class CodeGenerator
 
     /**
      * @param array<mixed> $properties
+     * @param bool $root
      * @return string
      */
     private function composeAnnotationProperties(array $properties, bool $root = true): string
@@ -169,10 +171,10 @@ class CodeGenerator
                 $assign = '';
             } else {
                 $quotize = $root
-                    ? function (string $name): string {
+                    ? static function (string $name): string {
                         return $name;
                     }
-                    : function (string $name): string {
+                    : static function (string $name): string {
                         return sprintf('"%s"', $name);
                     };
 
